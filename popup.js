@@ -2,20 +2,26 @@ const statusEl = document.getElementById("statusEl");
 const notesEl = document.getElementById("notes");
 const btn = document.getElementById("markRead");
 
-const tabPromise = browser.tabs.query({ active: true, currentWindow: true });
-
 const draftKey = (url) => `draft:${url}`;
 
-tabPromise.then(([tab]) => {
-  document.getElementById("page-title").textContent = tab.title || tab.url;
-  browser.storage.local.get(draftKey(tab.url)).then((result) => {
-    notesEl.value = result[draftKey(tab.url)] || "";
-  });
-});
+let currentTab = null;
 
-notesEl.addEventListener("input", async () => {
-  const [tab] = await tabPromise;
-  browser.storage.local.set({ [draftKey(tab.url)]: notesEl.value });
+async function loadTab() {
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+  currentTab = tab;
+  document.getElementById("page-title").textContent = tab.title || tab.url;
+  const result = await browser.storage.local.get(draftKey(tab.url));
+  notesEl.value = result[draftKey(tab.url)] || "";
+  statusEl.textContent = "";
+}
+
+loadTab();
+
+browser.tabs.onActivated.addListener(() => window.close());
+
+notesEl.addEventListener("input", () => {
+  if (!currentTab) return;
+  browser.storage.local.set({ [draftKey(currentTab.url)]: notesEl.value });
 });
 
 notesEl.addEventListener("keydown", (e) => {
@@ -33,8 +39,6 @@ btn.addEventListener("click", async () => {
     return;
   }
 
-  const [tab] = await tabPromise;
-
   btn.disabled = true;
   statusEl.textContent = "";
 
@@ -45,17 +49,17 @@ btn.addEventListener("click", async () => {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ url: tab.url, notes: notesEl.value.trim() || undefined }),
+      body: JSON.stringify({ url: currentTab.url, notes: notesEl.value.trim() || undefined }),
     });
 
     if (res.status === 201) {
       statusEl.textContent = "Marked as read!";
       notesEl.value = "";
-      browser.storage.local.remove(draftKey(tab.url));
+      browser.storage.local.remove(draftKey(currentTab.url));
     } else if (res.status === 204) {
       statusEl.textContent = "Removed from reads.";
       notesEl.value = "";
-      browser.storage.local.remove(draftKey(tab.url));
+      browser.storage.local.remove(draftKey(currentTab.url));
     } else {
       statusEl.textContent = `Error: ${res.status}`;
     }
