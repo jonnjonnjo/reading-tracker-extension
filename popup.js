@@ -1,6 +1,14 @@
 const statusEl = document.getElementById("statusEl");
+const notesEl = document.getElementById("notes");
+const btn = document.getElementById("markRead");
 
-document.getElementById("markRead").addEventListener("click", async () => {
+const tabPromise = browser.tabs.query({ active: true, currentWindow: true });
+
+tabPromise.then(([tab]) => {
+  document.getElementById("page-title").textContent = tab.title || tab.url;
+});
+
+btn.addEventListener("click", async () => {
   const { apiKey, apiBase } = await browser.storage.local.get(["apiKey", "apiBase"]);
 
   if (!apiKey || !apiBase) {
@@ -8,7 +16,10 @@ document.getElementById("markRead").addEventListener("click", async () => {
     return;
   }
 
-  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+  const [tab] = await tabPromise;
+
+  btn.disabled = true;
+  statusEl.textContent = "";
 
   try {
     const res = await fetch(`${apiBase}/reads`, {
@@ -17,7 +28,7 @@ document.getElementById("markRead").addEventListener("click", async () => {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ url: tab.url }),
+      body: JSON.stringify({ url: tab.url, notes: notesEl.value.trim() || undefined }),
     });
 
     if (res.status === 201) statusEl.textContent = "Marked as read!";
@@ -25,5 +36,7 @@ document.getElementById("markRead").addEventListener("click", async () => {
     else statusEl.textContent = `Error: ${res.status}`;
   } catch {
     statusEl.textContent = "Request failed.";
+  } finally {
+    btn.disabled = false;
   }
 });
