@@ -7,7 +7,7 @@
 
   "browser_specific_settings": {
     "gecko": {
-      "id": "url-reading-tracker@mozilla.org",
+      "id": "url-reading-tracker@jonarthurito",
       "data_collection_permissions": {
         "required": ["none"]
       }
