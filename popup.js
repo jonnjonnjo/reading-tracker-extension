@@ -4,16 +4,18 @@ const btn = document.getElementById("markRead");
 
 const tabPromise = browser.tabs.query({ active: true, currentWindow: true });
 
+const draftKey = (url) => `draft:${url}`;
+
 tabPromise.then(([tab]) => {
   document.getElementById("page-title").textContent = tab.title || tab.url;
+  browser.storage.local.get(draftKey(tab.url)).then((result) => {
+    notesEl.value = result[draftKey(tab.url)] || "";
+  });
 });
 
-browser.storage.local.get("draftNotes").then(({ draftNotes }) => {
-  if (draftNotes) notesEl.value = draftNotes;
-});
-
-notesEl.addEventListener("input", () => {
-  browser.storage.local.set({ draftNotes: notesEl.value });
+notesEl.addEventListener("input", async () => {
+  const [tab] = await tabPromise;
+  browser.storage.local.set({ [draftKey(tab.url)]: notesEl.value });
 });
 
 notesEl.addEventListener("keydown", (e) => {
@@ -49,11 +51,11 @@ btn.addEventListener("click", async () => {
     if (res.status === 201) {
       statusEl.textContent = "Marked as read!";
       notesEl.value = "";
-      browser.storage.local.remove("draftNotes");
+      browser.storage.local.remove(draftKey(tab.url));
     } else if (res.status === 204) {
       statusEl.textContent = "Removed from reads.";
       notesEl.value = "";
-      browser.storage.local.remove("draftNotes");
+      browser.storage.local.remove(draftKey(tab.url));
     } else {
       statusEl.textContent = `Error: ${res.status}`;
     }
