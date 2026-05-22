@@ -4,12 +4,48 @@
     <meta charset="utf-8" />
     <title>Reading Tracker Settings</title>
     <style>
-      body { font-family: sans-serif; padding: 24px; max-width: 400px; }
-      label { display: block; margin-bottom: 6px; font-weight: bold; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: system-ui, sans-serif;
+        background: #0f0f0f;
+        color: #e8e8e8;
+        padding: 24px;
+        max-width: 400px;
+      }
+
+      label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
       label + label { margin-top: 16px; }
-      input { width: 100%; padding: 8px; box-sizing: border-box; font-family: monospace; }
-      button { margin-top: 12px; padding: 8px 16px; cursor: pointer; }
-      #statusEl { margin-top: 10px; font-size: 0.9em; color: green; }
+
+      input {
+        width: 100%;
+        padding: 8px;
+        background: #1a1a1a;
+        border: 1px solid #2e2e2e;
+        border-radius: 6px;
+        color: #e8e8e8;
+        font-family: monospace;
+        font-size: 13px;
+        outline: none;
+      }
+
+      input:focus { border-color: #555; }
+
+      button {
+        margin-top: 16px;
+        padding: 9px 18px;
+        background: #e8e8e8;
+        color: #0f0f0f;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button:hover { background: #ccc; }
+
+      #statusEl { margin-top: 12px; font-size: 12px; color: #888; }
     </style>
   </head>
   <body>

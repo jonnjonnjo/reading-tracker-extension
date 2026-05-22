@@ -55,6 +55,12 @@
       button:hover { background: #ccc; }
       button:disabled { opacity: 0.5; cursor: default; }
 
+      #hint {
+        font-size: 11px;
+        color: #444;
+        margin-bottom: 10px;
+      }
+
       #statusEl {
         margin-top: 10px;
         font-size: 12px;
@@ -65,7 +71,8 @@
   </head>
   <body>
     <div id="page-title">Loading...</div>
-    <textarea id="notes" placeholder="Notes (optional)"></textarea>
+    <textarea id="notes" placeholder="Notes (optional)" autofocus></textarea>
+    <div id="hint">↵ submit · ⇧↵ new line</div>
     <button id="markRead">Mark as read</button>
     <div id="statusEl"></div>
     <script src="popup.js"></script>
