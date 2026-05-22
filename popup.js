@@ -8,11 +8,21 @@ document.getElementById("markRead").addEventListener("click", async () => {
     return;
   }
 
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+
   try {
     const res = await fetch(`${apiBase}/reads`, {
-      headers: { Authorization: `Bearer ${apiKey}` },
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url: tab.url }),
     });
-    statusEl.textContent = res.ok ? "Marked as read!" : `Error: ${res.statusEl}`;
+
+    if (res.status === 201) statusEl.textContent = "Marked as read!";
+    else if (res.status === 204) statusEl.textContent = "Removed from reads.";
+    else statusEl.textContent = `Error: ${res.status}`;
   } catch {
     statusEl.textContent = "Request failed.";
   }

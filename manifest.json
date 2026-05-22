@@ -24,7 +24,7 @@
     "page": "options.html"
   },
 
-  "permissions": ["activeTab", "storage"],
+  "permissions": ["activeTab", "storage", "tabs"],
 
   "host_permissions": ["<all_urls>"]
 }
