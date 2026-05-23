@@ -5,6 +5,12 @@ const btn = document.getElementById("markRead");
 const draftKey = (url) => `draft:${url}`;
 
 let currentTab = null;
+let isRead = false;
+
+function setReadState(exists) {
+  isRead = exists;
+  btn.textContent = exists ? "Remove from reads" : "Mark as read";
+}
 
 async function loadTab() {
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
@@ -15,22 +21,26 @@ async function loadTab() {
   notesEl.value = result[draftKey(tab.url)] || "";
 
   const { apiKey, apiBase } = await browser.storage.local.get(["apiKey", "apiBase"]);
-  if (apiKey && apiBase) {
-    try {
-      const res = await fetch(
-        `${apiBase}/reads/check?url=${encodeURIComponent(tab.url)}`,
-        { headers: { Authorization: `Bearer ${apiKey}` } }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        if (data.exists) {
-          const date = new Date(data.read.createdAt).toLocaleDateString();
-          statusEl.textContent = `Already read on ${date}`;
-        }
+  if (!apiKey || !apiBase) {
+    statusEl.textContent = "Open Preferences to configure your API.";
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `${apiBase}/reads/check?url=${encodeURIComponent(tab.url)}`,
+      { headers: { Authorization: `Bearer ${apiKey}` } }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      if (data.exists) {
+        const date = new Date(data.read.createdAt).toLocaleDateString();
+        statusEl.textContent = `Already read on ${date}`;
+        setReadState(true);
       }
-    } catch {
-      // silently fail
     }
+  } catch {
+    // silently fail
   }
 }
 
@@ -54,12 +64,15 @@ btn.addEventListener("click", async () => {
   const { apiKey, apiBase } = await browser.storage.local.get(["apiKey", "apiBase"]);
 
   if (!apiKey || !apiBase) {
-    statusEl.textContent = "Set your API key and base URL in Preferences first.";
+    statusEl.textContent = "Open Preferences to configure your API.";
     return;
   }
 
   btn.disabled = true;
   statusEl.textContent = "";
+
+  const wasRead = isRead;
+  setReadState(!isRead);
 
   try {
     const res = await fetch(`${apiBase}/reads`, {
@@ -81,9 +94,11 @@ btn.addEventListener("click", async () => {
       browser.storage.local.remove(draftKey(currentTab.url));
     } else {
       statusEl.textContent = `Error: ${res.status}`;
+      setReadState(wasRead);
     }
   } catch {
     statusEl.textContent = "Request failed.";
+    setReadState(wasRead);
   } finally {
     btn.disabled = false;
   }

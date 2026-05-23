@@ -17,10 +17,7 @@ async function checkTab(tabId, url) {
 
   if (domains.length > 0) {
     const hostname = new URL(url).hostname;
-    const allowed = domains.some(
-      (d) => hostname === d || hostname.endsWith("." + d)
-    );
-    if (!allowed) {
+    if (!domains.includes(hostname)) {
       browser.action.disable(tabId);
       browser.action.setBadgeText({ text: "", tabId });
       return;
@@ -54,4 +51,13 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 browser.tabs.onActivated.addListener(async ({ tabId }) => {
   const tab = await browser.tabs.get(tabId);
   checkTab(tabId, tab.url);
+});
+
+browser.storage.onChanged.addListener(async (changes, area) => {
+  if (area !== "local") return;
+  if (!("apiKey" in changes) && !("apiBase" in changes) && !("allowedDomains" in changes)) return;
+  const tabs = await browser.tabs.query({});
+  for (const tab of tabs) {
+    if (tab.url) checkTab(tab.id, tab.url);
+  }
 });
