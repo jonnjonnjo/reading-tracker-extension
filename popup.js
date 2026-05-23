@@ -10,9 +10,28 @@ async function loadTab() {
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   currentTab = tab;
   document.getElementById("page-title").textContent = tab.title || tab.url;
+
   const result = await browser.storage.local.get(draftKey(tab.url));
   notesEl.value = result[draftKey(tab.url)] || "";
-  statusEl.textContent = "";
+
+  const { apiKey, apiBase } = await browser.storage.local.get(["apiKey", "apiBase"]);
+  if (apiKey && apiBase) {
+    try {
+      const res = await fetch(
+        `${apiBase}/reads/check?url=${encodeURIComponent(tab.url)}`,
+        { headers: { Authorization: `Bearer ${apiKey}` } }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.exists) {
+          const date = new Date(data.read.createdAt).toLocaleDateString();
+          statusEl.textContent = `Already read on ${date}`;
+        }
+      }
+    } catch {
+      // silently fail
+    }
+  }
 }
 
 loadTab();

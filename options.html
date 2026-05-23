@@ -31,6 +31,24 @@
 
       input:focus { border-color: #555; }
 
+      textarea {
+        width: 100%;
+        padding: 8px;
+        background: #1a1a1a;
+        border: 1px solid #2e2e2e;
+        border-radius: 6px;
+        color: #e8e8e8;
+        font-family: monospace;
+        font-size: 13px;
+        resize: vertical;
+        outline: none;
+        min-height: 80px;
+      }
+
+      textarea:focus { border-color: #555; }
+
+      .hint { font-size: 11px; color: #555; margin-top: 4px; }
+
       button {
         margin-top: 16px;
         padding: 9px 18px;
@@ -53,6 +71,9 @@
     <input type="text" id="apiBase" placeholder="https://api.example.com" />
     <label for="apiKey">API Key</label>
     <input type="password" id="apiKey" placeholder="Paste your API key here" />
+    <label for="allowedDomains" style="margin-top: 16px;">Allowed Domains</label>
+    <textarea id="allowedDomains" placeholder="github.com&#10;news.ycombinator.com"></textarea>
+    <div class="hint">One domain per line. Leave empty to activate on all sites.</div>
     <button id="save">Save</button>
     <div id="statusEl"></div>
     <script src="options.js"></script>

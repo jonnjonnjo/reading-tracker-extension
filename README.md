@@ -8,10 +8,24 @@ A Firefox extension to mark pages as read and sync them to your reading tracker 
 2. Open the extension preferences and fill in:
    - **API Base URL** — e.g. `https://api.example.com`
    - **API Key** — your Bearer token
+   - **Allowed Domains** — one domain per line (leave empty to activate on all sites)
+
+## Behaviour
+
+- When you navigate to a page on an allowed domain, the extension automatically checks if you've read it and shows a **✓ badge** on the icon if so.
+- Opening the popup on an already-read URL shows the date it was read.
+- The icon is disabled on domains not in the whitelist.
 
 ## API
 
-The API must comply with `POST /reads` as defined in [reading-tracker-web](https://github.com/jonnjonnjo/reading-tracker-web).
+The API must comply with the endpoints defined in [reading-tracker-web](https://github.com/jonnjonnjo/reading-tracker-web).
+
+| Method | Endpoint | Params / Body | Response |
+|--------|----------|---------------|----------|
+| `POST` | `/reads` | `{ url, notes? }` | `201` — added, `204` — removed (toggle) |
+| `GET` | `/reads/check` | `?url=` | `200` — `{ exists, read }` |
+
+All requests are authenticated with `Authorization: Bearer <api-key>`.
 
 ## Keyboard shortcuts
 
