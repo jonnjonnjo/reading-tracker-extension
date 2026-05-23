@@ -88,10 +88,13 @@ btn.addEventListener("click", async () => {
       statusEl.textContent = "Marked as read!";
       notesEl.value = "";
       browser.storage.local.remove(draftKey(currentTab.url));
+      browser.action.setBadgeText({ text: "✓", tabId: currentTab.id });
+      browser.action.setBadgeBackgroundColor({ color: "#4caf50", tabId: currentTab.id });
     } else if (res.status === 204) {
       statusEl.textContent = "Removed from reads.";
       notesEl.value = "";
       browser.storage.local.remove(draftKey(currentTab.url));
+      browser.action.setBadgeText({ text: "", tabId: currentTab.id });
     } else {
       statusEl.textContent = `Error: ${res.status}`;
       setReadState(wasRead);

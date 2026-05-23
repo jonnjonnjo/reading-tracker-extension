@@ -18,12 +18,10 @@ A Firefox extension to mark pages as read and sync them to your reading tracker 
 
 ## API
 
-The API must comply with the endpoints defined in [reading-tracker-web](https://github.com/jonnjonnjo/reading-tracker-web).
-
-| Method | Endpoint | Params / Body | Response |
-|--------|----------|---------------|----------|
-| `POST` | `/reads` | `{ url, notes? }` | `201` — added, `204` — removed (toggle) |
-| `GET` | `/reads/check` | `?url=` | `200` — `{ exists, read }` |
+| Method | Endpoint | Params / Body | Response | Source |
+|--------|----------|---------------|----------|--------|
+| `POST` | `/reads` | `{ url, notes? }` | `201` — added, `204` — removed (toggle) | [reading-tracker-web](https://github.com/jonnjonnjo/reading-tracker-web) |
+| `GET` | `/reads/check` | `?url=` | `200` — `{ exists, read }` | [reading-tracker-api](https://github.com/jonnjonnjo/reading-tracker-api) |
 
 All requests are authenticated with `Authorization: Bearer <api-key>`.
 
