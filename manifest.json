@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "url-reading-tracker",
-  "version": "1.1",
+  "version": "1.2",
 
   "description": "Tracks all URLs that one have read",
 
