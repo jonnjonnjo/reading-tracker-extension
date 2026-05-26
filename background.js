@@ -1,6 +1,6 @@
 const tabCache = new Map();
 
-async function checkTab(tabId, url) {
+async function checkTab(tabId, url, showNotification = false) {
   if (!url || !url.startsWith("http")) {
     browser.action.disable(tabId);
     return;
@@ -42,6 +42,11 @@ async function checkTab(tabId, url) {
       browser.action.setBadgeText({ text: data.exists ? "✓" : "", tabId });
       if (data.exists)
         browser.action.setBadgeBackgroundColor({ color: "#4caf50", tabId });
+
+      if (showNotification) {
+        const date = data.exists ? new Date(data.read.createdAt).toLocaleDateString() : null;
+        browser.tabs.sendMessage(tabId, { type: "read-status", isRead: data.exists, date }).catch(() => {});
+      }
     }
   } catch {
     browser.action.setBadgeText({ text: "", tabId });
@@ -51,7 +56,7 @@ async function checkTab(tabId, url) {
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete") {
     tabCache.delete(tabId);
-    checkTab(tabId, tab.url);
+    checkTab(tabId, tab.url, true);
   }
 });
 
