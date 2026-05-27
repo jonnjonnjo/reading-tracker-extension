@@ -79,3 +79,12 @@ jobs:
           name: "v${{ steps.bump.outputs.new }}"
           generate_release_notes: true
           files: "url-reading-tracker-v${{ steps.bump.outputs.new }}.zip"
+
+      - name: Submit to Firefox Add-ons (AMO)
+        run: |
+          npm install -g web-ext
+          web-ext sign \
+            --source-dir . \
+            --api-key "${{ secrets.AMO_JWT_ISSUER }}" \
+            --api-secret "${{ secrets.AMO_JWT_SECRET }}" \
+            --channel listed
