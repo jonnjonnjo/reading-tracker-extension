@@ -11,8 +11,12 @@ function showToast(isRead, date) {
   style.id = "__rt-style__";
   style.textContent = `
     @keyframes __rt-drop__ {
-      from { opacity: 0; margin-top: -20px; }
-      to   { opacity: 1; margin-top: 0;     }
+      from { opacity: 0; transform: translateY(-16px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0)     scale(1);    }
+    }
+    @keyframes __rt-drop-out__ {
+      from { opacity: 1; transform: translateY(0)      scale(1);    }
+      to   { opacity: 0; transform: translateY(-16px)  scale(0.96); }
     }
     #__rt-wrap__ {
       all: unset;
@@ -37,10 +41,12 @@ function showToast(isRead, date) {
       font-size: 17px !important;
       font-weight: 700 !important;
       box-shadow: 0 8px 40px rgba(0,0,0,0.6) !important;
-      animation: __rt-drop__ 0.3s ease forwards;
-      transition: opacity 0.4s ease;
+      animation: __rt-drop__ 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
       white-space: nowrap;
       line-height: 1;
+    }
+    #__rt-toast__.dismissing {
+      animation: __rt-drop-out__ 0.35s ease-in forwards;
     }
     #__rt-close__ {
       all: unset;
@@ -77,11 +83,11 @@ function showToast(isRead, date) {
   wrap.appendChild(toast);
   document.body.appendChild(wrap);
 
-  const timer = setTimeout(dismiss, 8000);
+  const timer = setTimeout(dismiss, 3500);
 
   function dismiss() {
     clearTimeout(timer);
-    toast.style.opacity = "0";
-    setTimeout(() => { wrap.remove(); style.remove(); }, 400);
+    toast.classList.add("dismissing");
+    setTimeout(() => { wrap.remove(); style.remove(); }, 350);
   }
 }
