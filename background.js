@@ -34,9 +34,13 @@ async function checkTab(tabId, url, showNotification = false) {
         );
         if (res.ok) {
           const data = await res.json();
-          browser.action.setBadgeText({ text: data.exists ? "✓" : "", tabId });
-          if (data.exists)
+          if (data.exists) {
+            browser.action.setBadgeText({ text: "✓", tabId });
             browser.action.setBadgeBackgroundColor({ color: "#4caf50", tabId });
+          } else {
+            browser.action.setBadgeText({ text: "○", tabId });
+            browser.action.setBadgeBackgroundColor({ color: "#9e9e9e", tabId });
+          }
 
           if (showNotification) {
             const date = data.exists ? new Date(data.read.createdAt).toLocaleDateString() : null;

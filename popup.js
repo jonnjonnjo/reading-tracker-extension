@@ -95,7 +95,8 @@ btn.addEventListener("click", async () => {
       statusEl.textContent = "Removed from reads.";
       notesEl.value = "";
       browser.storage.local.remove(draftKey(currentTab.url));
-      browser.action.setBadgeText({ text: "", tabId: currentTab.id });
+      browser.action.setBadgeText({ text: "○", tabId: currentTab.id });
+      browser.action.setBadgeBackgroundColor({ color: "#9e9e9e", tabId: currentTab.id });
       browser.runtime.sendMessage({ type: "manual-read", url: currentTab.url, isRead: false });
     } else {
       statusEl.textContent = `Error: ${res.status}`;
