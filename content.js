@@ -71,7 +71,9 @@ function showToast(isRead, date) {
     toast.innerHTML = `<span style="font-size:22px">✅</span><span>Already read &mdash; <span style="font-weight:400;font-size:15px">${date}</span></span>`;
   } else {
     toast.style.cssText = "background:#3a1515;color:#ff8080;border:2px solid #e05555;";
-    toast.innerHTML = `<span style="font-size:22px">📖</span><span>Haven't read this yet</span>`;
+    const time = estimateReadingTime();
+    const timeStr = time ? ` &mdash; <span style="font-weight:400;font-size:15px">~${time} min read</span>` : "";
+    toast.innerHTML = `<span style="font-size:22px">📖</span><span>Haven't read this yet${timeStr}</span>`;
   }
 
   const closeBtn = document.createElement("button");
@@ -90,4 +92,17 @@ function showToast(isRead, date) {
     toast.classList.add("dismissing");
     setTimeout(() => { wrap.remove(); style.remove(); }, 350);
   }
+}
+
+function estimateReadingTime() {
+  const article = document.querySelector("article");
+  const main = document.querySelector("main");
+  const container = article || main || document.body;
+  const clone = container.cloneNode(true);
+  for (const el of clone.querySelectorAll("script, style, nav, footer, header, .sidebar, .comments, noscript, [role=navigation], [role=banner], [role=contentinfo]")) {
+    el.remove();
+  }
+  const words = (clone.textContent || "").trim().split(/\s+/).length;
+  if (words < 20) return null;
+  return Math.max(1, Math.round(words / 238));
 }
