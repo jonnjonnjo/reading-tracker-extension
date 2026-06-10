@@ -1,6 +1,11 @@
 const tabCache = new Map();
 const manualReads = new Set();
 
+function setBadge(tabId, text, color) {
+  browser.action.setBadgeText({ text, tabId });
+  browser.action.setBadgeBackgroundColor({ color, tabId });
+}
+
 async function checkTab(tabId, url, showNotification = false) {
   if (!url || !url.startsWith("http")) {
     browser.action.disable(tabId);
@@ -15,51 +20,42 @@ async function checkTab(tabId, url, showNotification = false) {
     "allowedDomains",
   ]);
 
+  const hostname = new URL(url).hostname;
   const domains = (allowedDomains || "")
     .split("\n")
     .map((d) => d.trim())
     .filter(Boolean);
 
-  if (domains.length > 0) {
-    const hostname = new URL(url).hostname;
-    if (domains.includes(hostname)) {
-      browser.action.enable(tabId);
+  const isAllowed = domains.length === 0 || domains.includes(hostname);
+  browser.action.enable(tabId);
 
-      if (!apiKey || !apiBase) return;
-
-      try {
-        const res = await fetch(
-          `${apiBase}/reads/check?url=${encodeURIComponent(url)}`,
-          { headers: { Authorization: `Bearer ${apiKey}` } }
-        );
-        if (res.ok) {
-          const data = await res.json();
-          if (data.exists) {
-            browser.action.setBadgeText({ text: "✓", tabId });
-            browser.action.setBadgeBackgroundColor({ color: "#4caf50", tabId });
-          } else {
-            browser.action.setBadgeText({ text: "○", tabId });
-            browser.action.setBadgeBackgroundColor({ color: "#9e9e9e", tabId });
-          }
-
-          if (showNotification) {
-            const date = data.exists ? new Date(data.read.createdAt).toLocaleDateString() : null;
-            browser.tabs.sendMessage(tabId, { type: "read-status", isRead: data.exists, date }).catch(() => { });
-          }
-        }
-      } catch {
-        browser.action.setBadgeText({ text: "", tabId });
-      }
-      return;
+  if (!isAllowed) {
+    if (manualReads.has(url)) {
+      setBadge(tabId, "✓", "#4caf50");
+    } else {
+      setBadge(tabId, "", "#9e9e9e");
     }
+    return;
   }
 
-  browser.action.enable(tabId);
-  if (manualReads.has(url)) {
-    browser.action.setBadgeText({ text: "✓", tabId });
-    browser.action.setBadgeBackgroundColor({ color: "#4caf50", tabId });
-  } else {
-    browser.action.setBadgeText({ text: "", tabId });
+  if (!apiKey || !apiBase) return;
+
+  try {
+    const res = await fetch(
+      `${apiBase}/reads/check?url=${encodeURIComponent(url)}`,
+      { headers: { Authorization: `Bearer ${apiKey}` } }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      setBadge(tabId, data.exists ? "✓" : "○", data.exists ? "#4caf50" : "#9e9e9e");
+
+      if (showNotification) {
+        const date = data.exists ? new Date(data.read.createdAt).toLocaleDateString() : null;
+        browser.tabs.sendMessage(tabId, { type: "read-status", isRead: data.exists, date }).catch(() => { });
+      }
+    }
+  } catch {
+    setBadge(tabId, "", "");
   }
 }
 
