@@ -70,10 +70,9 @@ function showToast(isRead, date) {
     toast.style.cssText = "background:#1b3d20;color:#7ddf7d;border:2px solid #4caf50;";
     toast.innerHTML = `<span style="font-size:22px">✅</span><span>Already read &mdash; <span style="font-weight:400;font-size:15px">${date}</span></span>`;
   } else {
-    toast.style.cssText = "background:#3a1515;color:#ff8080;border:2px solid #e05555;";
     const time = estimateReadingTime();
-    const timeStr = time ? ` &mdash; <span style="font-weight:400;font-size:15px">~${time} min read</span>` : "";
-    toast.innerHTML = `<span style="font-size:22px">📖</span><span>Haven't read this yet${timeStr}</span>`;
+    toast.style.cssText = "background:#3a1515;color:#ff8080;border:2px solid #e05555;";
+    toast.innerHTML = time ? `<span style="font-size:22px">📖</span><span>~${time} min read</span>` : `<span style="font-size:22px">📖</span><span>Haven't read this yet</span>`;
   }
 
   const closeBtn = document.createElement("button");
